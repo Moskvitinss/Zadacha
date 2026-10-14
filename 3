@@ -1,0 +1,58 @@
+#include <iostream>
+#include <cstring>
+
+const int ROWS = 5;
+const int COLS = 10;
+
+void clear(char table[ROWS][COLS]) {
+    for (int i = 0; i < ROWS; ++i)
+        for (int j = 0; j < COLS; ++j)
+            table[i][j] = ' ';
+}
+
+bool put(char table[ROWS][COLS], int x, int y, char c) {
+    if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return false;
+    table[y][x] = c;
+    return true;
+}
+
+bool text(char table[ROWS][COLS], int x, int y, const char* word) {
+    int len = std::strlen(word);
+    if (y < 0 || y >= ROWS) return false;
+    if (x < 0 || x + len - 1 >= COLS) return false;
+    for (int i = 0; i < len; ++i) table[y][x + i] = word[i];
+    return true;
+}
+
+void print(const char table[ROWS][COLS]) {
+    for (int i = 0; i < ROWS; ++i) {
+        for (int j = 0; j < COLS; ++j) std::cout << table[i][j];
+        std::cout << "\n";
+    }
+}
+
+int main() {
+    char table[ROWS][COLS];
+    clear(table);
+
+    std::string cmd;
+    while (std::cin >> cmd) {
+        if (cmd == "quit") break;
+        if (cmd == "clear") {
+            clear(table);
+        } else if (cmd == "put") {
+            int x, y; char c;
+            std::cin >> x >> y >> c;
+            if (!put(table, x, y, c)) std::cout << "error\n";
+        } else if (cmd == "text") {
+            int x, y; std::string word;
+            std::cin >> x >> y >> word;
+            if (!text(table, x, y, word.c_str())) std::cout << "error\n";
+        } else if (cmd == "print") {
+            print(table);
+        } else {
+            std::cout << "error\n";
+        }
+    }
+    return 0;
+}
