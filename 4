@@ -1,0 +1,77 @@
+#include <iostream>
+#include <string>
+// зачем здесь int***:
+// Это трехмерный динамический массив для хранения структуры склада.
+// Измерения: [Номер секции][Номер полки][Номер товара].
+// 1-й уровень (*): указатель на массив секций.
+// 2-й уровень (**): указатель на массив полок внутри секции.
+// 3-й уровень (***): указатель на массив артикулов товаров на полке.
+// Без третьего уровня мы не смогли бы хранить разное количество товаров 
+// на каждой полке, не используя сложные структуры.
+// зачем здесь void*:
+// Используется в функции printWarehouse для универсального вывода.
+// Функция должна уметь печатать как массив чисел (артикулы), так и 
+// массив строк (названия секций). void* позволяет принять любой указатель,
+// а приведение к конкретному типу выполняется внутри функции по флагу.
+void printInfo(void* data, int count, int type) {
+    if (data == nullptr) return;
+    
+    if (type == 0) {
+        // Приводим void* к int* для вывода чисел
+        int* items = static_cast<int*>(data);
+        std::cout << "  Артикулы: ";
+        for (int i = 0; i < count; ++i) {
+            std::cout << items[i] << " ";
+        }
+        std::cout << std::endl;
+    } 
+    else if (type == 1) {
+        // Приводим void* к string* для вывода названий
+        std::string* names = static_cast<std::string*>(data);
+        std::cout << "Секция: ";
+        for (int i = 0; i < count; ++i) {
+            std::cout << names[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+int main() {
+    const int NUM_SECTIONS = 2;
+    const int NUM_SHELVES = 2;
+    const int NUM_ITEMS = 3;
+    // Выделяем память под массив секций (int***)
+    int*** warehouse = new int**[NUM_SECTIONS];
+    // Названия секций для демонстрации void*
+    std::string sectionNames[NUM_SECTIONS] = {"Электроника", "Продукты"};
+    // Заполняем склад данными
+    for (int s = 0; s < NUM_SECTIONS; ++s) {
+        warehouse[s] = new int*[NUM_SHELVES];  
+        for (int sh = 0; sh < NUM_SHELVES; ++sh) {
+            warehouse[s][sh] = new int[NUM_ITEMS];     
+            // Заполняем артикулы (для примера)
+            for (int it = 0; it < NUM_ITEMS; ++it) {
+                warehouse[s][sh][it] = (s + 1) * 100 + (sh + 1) * 10 + it;
+            }
+        }
+    }
+    // 1. Вывод названий секций (передаем string* как void*)
+    printInfo(static_cast<void*>(sectionNames), NUM_SECTIONS, 1);
+
+    // 2. Вывод товаров на первой полке первой секции (передаем int* как void*)
+    std::cout << "Товары на полке 1 (Секция 1):" << std::endl;
+    printInfo(static_cast<void*>(warehouse[0][0]), NUM_ITEMS, 0);
+
+    // 3. Вывод товаров на второй полке второй секции
+    std::cout << "Товары на полке 2 (Секция 2):" << std::endl;
+    printInfo(static_cast<void*>(warehouse[1][1]), NUM_ITEMS, 0);
+
+    // --- Очистка памяти ---
+    for (int s = 0; s < NUM_SECTIONS; ++s) {
+        for (int sh = 0; sh < NUM_SHELVES; ++sh) {
+            delete[] warehouse[s][sh]; // Удаляем товары
+        }
+        delete[] warehouse[s]; // Удаляем полки
+    }
+    delete[] warehouse; // Удаляем секции
+    return 0;
+}
