@@ -1,0 +1,52 @@
+#include <iostream>
+#include <cstring>
+typedef void (*CommandFunc)(int&, int);
+void deposit(int& sum, int k) {
+    if (k <= 0) { std::cout << "error\n"; return; }
+    sum += k;
+}
+void withdraw(int& sum, int k) {
+    if (k <= 0 || sum < k) { std::cout << "error\n"; return; }
+    sum -= k;
+}
+void balance(int& sum, int) {
+    std::cout << sum << "\n";
+}
+void reset(int& sum, int) {
+    sum = 0;
+}
+void doubleSum(int& sum, int) {
+    sum *= 2;
+}
+struct CommandEntry {
+    const char* name;
+    CommandFunc func;
+};
+int main() {
+    CommandEntry table[] = {
+        {"deposit",  deposit},
+        {"withdraw", withdraw},
+        {"balance",  balance},
+        {"reset",    reset},
+        {"double",   doubleSum},
+    };
+    const int tableSize = sizeof(table) / sizeof(table[0]);
+    int sum = 0;
+    std::string cmd;
+    while (std::cin >> cmd) {
+        if (cmd == "stop") break;
+        int k = 0;
+        if (cmd == "deposit" || cmd == "withdraw") std::cin >> k;
+
+        bool found = false;
+        for (int i = 0; i < tableSize; ++i) {
+            if (cmd == table[i].name) {
+                table[i].func(sum, k);
+                found = true;
+                break;
+            }
+        }
+        if (!found) std::cout << "error\n";
+    }
+    return 0;
+}
