@@ -26,7 +26,9 @@ int main() {
     int n;
     std::cin >> n;
     int* temps = new int[n];
-    for (int i = 0; i < n; ++i) std::cin >> temps[i];
+    for (int i = 0; i < n; ++i) { 
+    std::cin >> temps[i];
+    }
     std::cout << std::fixed << std::setprecision(1) << average(temps, n) << "\n";
     std::cout << minimum(temps, n) << " " << maximum(temps, n) << "\n";
     std::cout << frostyDays(temps, n) << "\n";
